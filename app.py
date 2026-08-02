@@ -3,7 +3,16 @@ import pickle
 import numpy as np
 import pandas as pd
 
+try:
+    import spaces
+    @spaces.GPU
+    def zero_gpu_init():
+        return True
+except Exception:
+    pass
+
 app = Flask(__name__)
+
 
 with open('xgboost_model.pkl', 'rb') as f:
     model = pickle.load(f)

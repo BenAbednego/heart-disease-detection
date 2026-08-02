@@ -3,8 +3,9 @@ title: Heart Disease Early Detection
 emoji: 🫀
 colorFrom: red
 colorTo: blue
-sdk: docker
-app_port: 7860
+sdk: gradio
+sdk_version: 4.19.2
+app_file: app.py
 pinned: false
 ---
 
@@ -20,7 +21,7 @@ Aplikasi Web dan Sistem Machine Learning **End-to-End** untuk melakukan **skrini
 
 ---
 
-## 📌 1. Insights & Temuan Utama Data (`heart.csv`)
+## 1. Insights & Temuan Utama Data (`heart.csv`)
 
 ### **a. Profil Dataset**
 - **Ukuran Data**: 918 sampel pasien (setelah pembersihan: 917 baris valid).
@@ -46,7 +47,7 @@ Aplikasi Web dan Sistem Machine Learning **End-to-End** untuk melakukan **skrini
 
 ---
 
-## 🛠️ 2. Data Preprocessing & Feature Engineering
+## 2. Data Preprocessing & Feature Engineering
 
 1. **Data Cleaning**:
    - Menghapus 1 baris tidak valid dengan `RestingBP == 0`.
@@ -63,7 +64,7 @@ Aplikasi Web dan Sistem Machine Learning **End-to-End** untuk melakukan **skrini
 
 ---
 
-## 🤖 3. Performa & Perbandingan Model ML
+## 3. Performa & Perbandingan Model ML
 
 Pembagian dataset: **80% Training Data (733 sampel)** dan **20% Test Data (184 sampel)**.
 
@@ -71,16 +72,16 @@ Pembagian dataset: **80% Training Data (733 sampel)** dan **20% Test Data (184 s
 
 | Model Machine Learning | Training Accuracy | Testing Accuracy | F1-Score | ROC-AUC | Overfitting Gap | Status Model |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| 🏆 **XGBoost Classifier** | **94.82%** | **88.04%** | **90.00%** | **93.07%** | **6.78%** | **Model Terbaik & Paling Stabil** |
-| 🥈 **Gradient Boosting** | 95.91% | 85.33% | 87.78% | 92.47% | 10.58% | Cukup Baik |
-| 🥉 **Random Forest** | 89.09% | 83.70% | 86.24% | 92.83% | 5.39% | Akurasi Turun |
+|  **XGBoost Classifier** | **94.82%** | **88.04%** | **90.00%** | **93.07%** | **6.78%** | **Model Terbaik & Paling Stabil** |
+|  **Gradient Boosting** | 95.91% | 85.33% | 87.78% | 92.47% | 10.58% | Cukup Baik |
+|  **Random Forest** | 89.09% | 83.70% | 86.24% | 92.83% | 5.39% | Akurasi Turun |
 
 > **Alasan Pemilihan XGBoost**:
 > Model XGBoost mencapai **Akurasi 88.04%** dan **ROC-AUC 93.07%**. Nilai **F1-Score 90.00%** sangat krusial di dunia medis karena meminimalkan angka *False Negative* (pasien sakit yang terprediksi sehat).
 
 ---
 
-## 🖥️ 4. Arsitektur Aplikasi Web
+## 4. Arsitektur Aplikasi Web
 
 ```
 Client (Browser) <---> Flask REST API (app.py) <---> Scalers (scaler1, scaler2) <---> XGBoost Model (.pkl)
@@ -94,7 +95,7 @@ Client (Browser) <---> Flask REST API (app.py) <---> Scalers (scaler1, scaler2) 
 
 ---
 
-## 📁 5. Struktur Direktori Proyek
+## 5. Struktur Direktori Proyek
 
 ```
 Heart Deasese/
@@ -114,7 +115,7 @@ Heart Deasese/
 
 ---
 
-## 🚀 6. Panduan Menjalankan Lokal
+## 6. Panduan Menjalankan Lokal
 
 ### **1. Clone Repository & Masuk ke Folder**
 ```bash
@@ -142,7 +143,7 @@ Buka browser di: **`http://localhost:7860`** atau **`http://127.0.0.1:7860`**.
 
 ---
 
-## 🌐 7. Deployment Status
+## 7. Deployment Status
 
 - **Hugging Face Spaces**: [https://huggingface.co/spaces/benabednego/heart-disease-detection](https://huggingface.co/spaces/benabednego/heart-disease-detection)
 - **GitHub Repository**: [https://github.com/BenAbednego/heart-disease-detection](https://github.com/BenAbednego/heart-disease-detection)

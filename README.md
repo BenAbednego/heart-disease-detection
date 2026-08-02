@@ -4,7 +4,7 @@ emoji: 🫀
 colorFrom: red
 colorTo: blue
 sdk: gradio
-sdk_version: 4.19.2
+sdk_version: 4.44.0
 app_file: app.py
 pinned: false
 ---
@@ -17,9 +17,12 @@ pinned: false
 [![Scikit-Learn](https://img.shields.io/badge/scikit--learn-ML%20Pipeline-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces%20Live-FFD21E?style=for-the-badge)](https://huggingface.co/spaces/benabednego/heart-disease-detection)
 
-Aplikasi Web dan Sistem Machine Learning End-to-End untuk melakukan skrining dini risiko penyakit jantung berdasarkan 11 indikator klinis pasien. Sistem ini ditenagai oleh model ensemble XGBoost Classifier yang telah dioptimalkan melalui hyperparameter tuning dan feature engineering.
+Aplikasi Web dan Sistem Machine Learning **End-to-End** untuk melakukan **skrining dini risiko penyakit jantung** berdasarkan 11 indikator klinis pasien. Sistem ini ditenagai oleh model ensemble **XGBoost Classifier** yang telah dioptimalkan melalui *hyperparameter tuning* dan *feature engineering*.
+
+---
 
 ## 1. Insights & Temuan Utama Data (`heart.csv`)
+
 ### **a. Profil Dataset**
 - **Ukuran Data**: 918 sampel pasien (setelah pembersihan: 917 baris valid).
 - **Variabel Target (`HeartDisease`)**:
@@ -78,7 +81,7 @@ Pembagian dataset: **80% Training Data (733 sampel)** dan **20% Test Data (184 s
 
 ---
 
-## 🖥️ 4. Arsitektur Aplikasi Web
+## 4. Arsitektur Aplikasi Web
 
 ```
 Client (Browser) <---> Flask REST API (app.py) <---> Scalers (scaler1, scaler2) <---> XGBoost Model (.pkl)
@@ -92,7 +95,7 @@ Client (Browser) <---> Flask REST API (app.py) <---> Scalers (scaler1, scaler2) 
 
 ---
 
-## 📁 5. Struktur Direktori Proyek
+## 5. Struktur Direktori Proyek
 
 ```
 Heart Deasese/
@@ -112,7 +115,7 @@ Heart Deasese/
 
 ---
 
-## 🚀 6. Panduan Menjalankan Lokal
+## 6. Panduan Menjalankan Lokal
 
 ### **1. Clone Repository & Masuk ke Folder**
 ```bash
@@ -140,7 +143,7 @@ Buka browser di: **`http://localhost:7860`** atau **`http://127.0.0.1:7860`**.
 
 ---
 
-## 🌐 7. Deployment Status
+## 7. Deployment Status
 
 - **Hugging Face Spaces**: [https://huggingface.co/spaces/benabednego/heart-disease-detection](https://huggingface.co/spaces/benabednego/heart-disease-detection)
 - **GitHub Repository**: [https://github.com/BenAbednego/heart-disease-detection](https://github.com/BenAbednego/heart-disease-detection)

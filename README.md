@@ -3,9 +3,8 @@ title: Heart Disease Early Detection
 emoji: 🫀
 colorFrom: red
 colorTo: blue
-sdk: gradio
-sdk_version: 4.19.2
-app_file: app.py
+sdk: docker
+app_port: 7860
 pinned: false
 ---
 

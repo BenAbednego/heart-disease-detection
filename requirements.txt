@@ -1,8 +1,4 @@
-# Force clean build - v1.0.1
-gradio>=4.44.0
-huggingface-hub>=0.24.0
 pandas
 numpy
 scikit-learn
 xgboost
-spaces

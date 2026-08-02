@@ -1,19 +1,14 @@
-from flask import Flask, request, jsonify, send_from_directory
-import pickle
-import numpy as np
+import gradio as gr
 import pandas as pd
+import numpy as np
+import pickle
 
 try:
     import spaces
-    @spaces.GPU
-    def zero_gpu_init():
-        return True
-except Exception:
-    pass
+except ImportError:
+    spaces = None
 
-app = Flask(__name__)
-
-
+# Load model & scalers
 with open('xgboost_model.pkl', 'rb') as f:
     model = pickle.load(f)
 
@@ -23,61 +18,39 @@ with open('scaler1.pkl', 'rb') as f:
 with open('scaler2.pkl', 'rb') as f:
     scaler2 = pickle.load(f)
 
-@app.route('/')
-def home():
-    return send_from_directory('.', 'index.html')
-
-@app.route('/prediksi', methods=['POST'])
-def prediksi():
-    data = request.json
-
-    age = float(data['age'])
-    sex = data['sex']
-    chest = data['chest']
-    restingbp = float(data['restingbp'])
-    cholesterol = float(data['cholesterol'])
-    fasting = float(data['fasting'])
-    restingecg = data['restingecg']
-    maxhr = float(data['maxhr'])
-    exercise = data['exercise']
-    oldpeak = float(data['oldpeak'])
-    st = data['st']
-
-    sex_enc = 1 if sex == 'M' else 0
-    chest_enc = {'ASY': 0, 'ATA': 1, 'NAP': 2, 'TA': 3}[chest]
-    restingecg_enc = {'LVH': 0, 'Normal': 1, 'ST': 2}[restingecg]
-    st_enc = {'Down': 0, 'Flat': 1, 'Up': 2}[st]
-    exercise_enc = 1 if exercise == 'Y' else 0
+def predict_logic(age, sex, chest_pain, resting_bp, cholesterol, fasting_bs, resting_ecg, max_hr, exercise_angina, oldpeak, st_slope):
+    sex_enc = 1 if sex == 'Pria' else 0
+    chest_enc = {'ASY': 0, 'ATA': 1, 'NAP': 2, 'TA': 3}[chest_pain]
+    restingecg_enc = {'LVH': 0, 'Normal': 1, 'ST': 2}[resting_ecg]
+    st_enc = {'Down': 0, 'Flat': 1, 'Up': 2}[st_slope]
+    exercise_enc = 1 if exercise_angina == 'Ya' else 0
 
     sex_x_chest = sex_enc * chest_enc
-    exercise_x_oldpeak = exercise_enc * oldpeak
-    maxhr_x_stslope = maxhr * st_enc
-    age_x_restingbp = age * restingbp
+    exercise_x_oldpeak = exercise_enc * float(oldpeak)
+    maxhr_x_stslope = float(max_hr) * st_enc
+    age_x_restingbp = float(age) * float(resting_bp)
 
-    # Scaling pakai scaler1
     temp1 = pd.DataFrame([{
-        'Age': age,
-        'RestingBP': restingbp,
-        'Cholesterol': cholesterol,
-        'MaxHR': maxhr,
-        'Oldpeak': oldpeak,
+        'Age': float(age),
+        'RestingBP': float(resting_bp),
+        'Cholesterol': float(cholesterol),
+        'MaxHR': float(max_hr),
+        'Oldpeak': float(oldpeak),
         'ChestPainType_Encoded': chest_enc,
         'RestingECG_Encoded': restingecg_enc,
         'ST_Slope_Encoded': st_enc,
-        'FastingBS': fasting,
+        'FastingBS': 1.0 if fasting_bs == 'Ya (>120 mg/dL)' else 0.0,
         'Sex_Encoded': sex_enc,
         'ExerciseAngina_Encoded': exercise_enc
     }])
     scaled1 = scaler1.transform(temp1)
 
-    # Scaling pakai scaler2
     temp2 = pd.DataFrame([{
         'MaxHR_x_STSlope': maxhr_x_stslope,
         'Age_x_RestingBP': age_x_restingbp
     }])
     scaled2 = scaler2.transform(temp2)
 
-    # Input final
     input_data = pd.DataFrame([{
         'Age_Scaled': scaled1[0][0],
         'RestingBP_Scaled': scaled1[0][1],
@@ -96,14 +69,43 @@ def prediksi():
         'Age_x_RestingBP_Scaled': scaled2[0][1]
     }])
 
-    hasil = model.predict(input_data)[0]
+    pred = model.predict(input_data)[0]
     prob = model.predict_proba(input_data)[0]
 
-    return jsonify({
-        'prediksi': int(hasil),
-        'prob_sehat': round(float(prob[0]) * 100, 2),
-        'prob_sakit': round(float(prob[1]) * 100, 2)
-    })
+    prob_sakit = round(float(prob[1]) * 100, 2)
+    prob_sehat = round(float(prob[0]) * 100, 2)
+
+    if pred == 1:
+        return f"⚠️  BERISIKO PENYAKIT JANTUNG\n\nProbabilitas Sakit  : {prob_sakit}%\nProbabilitas Sehat  : {prob_sehat}%"
+    else:
+        return f"✅  TIDAK BERISIKO (SEHAT)\n\nProbabilitas Sehat  : {prob_sehat}%\nProbabilitas Sakit  : {prob_sakit}%"
+
+if spaces:
+    @spaces.GPU
+    def predict_heart_disease(*args, **kwargs):
+        return predict_logic(*args, **kwargs)
+else:
+    predict_heart_disease = predict_logic
+
+demo = gr.Interface(
+    fn=predict_heart_disease,
+    inputs=[
+        gr.Slider(18, 100, value=50, label="Usia (Age)"),
+        gr.Radio(["Pria", "Wanita"], value="Pria", label="Jenis Kelamin (Sex)"),
+        gr.Dropdown(["ASY", "ATA", "NAP", "TA"], value="ASY", label="Tipe Nyeri Dada (Chest Pain Type)"),
+        gr.Slider(80, 200, value=120, label="Tekanan Darah Istirahat (Resting BP)"),
+        gr.Slider(100, 600, value=220, label="Kolesterol (Cholesterol)"),
+        gr.Radio(["Tidak (<=120 mg/dL)", "Ya (>120 mg/dL)"], value="Tidak (<=120 mg/dL)", label="Gula Darah Puasa (Fasting BS)"),
+        gr.Dropdown(["Normal", "ST", "LVH"], value="Normal", label="Hasil EKG Istirahat (Resting ECG)"),
+        gr.Slider(60, 220, value=150, label="Detak Jantung Maksimum (Max HR)"),
+        gr.Radio(["Tidak", "Ya"], value="Tidak", label="Nyeri Dada Saat Olahraga (Exercise Angina)"),
+        gr.Slider(0.0, 6.0, value=0.0, step=0.1, label="ST Depression (Oldpeak)"),
+        gr.Dropdown(["Up", "Flat", "Down"], value="Flat", label="ST Slope")
+    ],
+    outputs=gr.Textbox(label="Hasil Diagnosis & Estimasi Risiko"),
+    title="🫀 Prediksi Dini Penyakit Jantung (Heart Disease Early Detection)",
+    description="Sistem deteksi dini penyakit jantung berbasis Machine Learning (XGBoost Classifier)."
+)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=7860)
+    demo.launch(server_name="0.0.0.0", server_port=7860)
